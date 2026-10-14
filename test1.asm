@@ -5,6 +5,9 @@
 !byte $0c,$08,$0a,$00,$9e,$32,$30,$36,$31,$00,$00,$00 ; 10 SYS 2061
 
 start:
+	lda #$00    				; Black
+    sta $d020   				; Border
+    sta $d021   				; Background
 	sei
 	lda #$c0                    ; sprite data at $3000 in VIC bank 0
 	sta $07f8
