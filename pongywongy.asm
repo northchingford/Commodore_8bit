@@ -110,35 +110,34 @@ clear_screen:
 	rts
 
 draw_title:
+	ldx #$00
+draw_banner:
+	lda banner_text,x
+	sta $040b,x
+	inx
+	cpx #$12
+	bne draw_banner
 	lda #$10
-	sta $0412
-	lda #$0f
-	sta $0413
-	lda #$0e
-	sta $0414
-	lda #$07
-	sta $0415
-	lda #$10
-	sta $048d
+	sta $07ce
 	lda #$31
-	sta $048e
+	sta $07cf
 	lda #$10
-	sta $0499
+	sta $07d7
 	lda #$32
-	sta $049a
+	sta $07d8
 	lda #$2d
-	sta $0494
+	sta $07d3
 	rts
 
 draw_score:
 	lda left_score
 	clc
 	adc #$30
-	sta $0490
+	sta $07d1
 	lda right_score
 	clc
 	adc #$30
-	sta $049c
+	sta $07d5
 	rts
 
 read_controls:
@@ -432,6 +431,8 @@ right_win_text:
 !byte 18,9,7,8,20,32,16,12,1,25,5,18,32,23,9,14,19
 prompt_text:
 !byte 16,18,5,19,19,32,6,9,18,5,32,20,15,32,19,20,1,18,20
+banner_text:
+!byte 16,15,14,7,25,32,23,15,14,7,25,32,2,25,32,19,12,3
 
 * = $3000
 ; Four changing 24x21 ball sprites create a rotating highlight.
