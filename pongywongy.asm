@@ -6,8 +6,9 @@
 
 start:
 	sei
-	lda #$00
+	lda #$04
 	sta $d020
+    lda #$00
 	sta $d021
 	lda #$0f
 	sta $d418
