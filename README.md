@@ -17,3 +17,14 @@ acme -f cbm -o steven_demo.prg steven_demo.asm
 ```
 
 The generator requires Pillow. Load `steven_demo.prg` on a PAL C64 or emulator. It displays a static multicolor bitmap while a three-voice SID tune plays a 12-bar progression five times, then loops at two minutes. The PRG uses `$2000` for bitmap data and `$0400` for screen RAM.
+
+## Waterfall demo
+
+Generate the multicolor scene and REU animation frames, then assemble the demo:
+
+```sh
+python3 make_waterfall_assets.py
+acme -f cbm -o waterfall_demo.prg waterfall_demo.asm
+```
+
+Load `waterfall_demo.prg` on a PAL C64 with a 512 KiB 1750-compatible REU. The six-frame waterfall, splash, and river animation is DMA-copied from the REU into bitmap RAM; SID voice 3 supplies the rushing-water sound. `waterfall_preview.png` shows the generated scene.
