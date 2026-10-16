@@ -27,6 +27,9 @@ start:
 	lda #$00
 	sta $d015
 	jsr copy_screen_data
+	lda $01
+	and #$fe                    ; hide BASIC ROM so DMA can read frames at $a000-$bfff
+	sta $01
 	jsr init_reu
 	jsr init_water_sound
 	cli
