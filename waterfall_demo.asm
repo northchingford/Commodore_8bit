@@ -1,4 +1,4 @@
-; REU-assisted waterfall scene for a C64 with a 512 KiB 1750 REU.
+; REU-assisted waterfall scene. Load waterfall.reu into a 512 KiB REU first.
 ; Build assets with make_waterfall_assets.py, then assemble with ACME.
 
 * = $0801
@@ -72,33 +72,28 @@ screen_data_done:
 
 init_reu:
 	lda #$00
-	sta $df02                    ; C64 frame data begins at $4800
-	lda #$48
-	sta $df03
-	lda #$00
-	sta $df04
+	sta reu_offset_low
+	sta reu_offset_mid
+	sta reu_offset_high
+	sta $df04                    ; REU frame pointer starts at $00000
 	sta $df05
-	sta $df06                    ; REU destination $00000
+	sta $df06
 	sta $df07
-	lda #$78                    ; six frames, 6 * $1400 = $7800 bytes
+	lda #$14                    ; 128 bitmap rows = $1400 bytes
 	sta $df08
 	lda #$1f
 	sta $df09                    ; no REU interrupts
 	lda #$00
 	sta $df0a                    ; increment both addresses
-	lda #$90                    ; C64 -> REU, execute DMA
-	sta $df01
-	lda #$00
 	sta frame_index
 	rts
 
 show_next_frame:
-	ldx frame_index
-	lda reu_frame_low,x
+	lda reu_offset_low
 	sta $df04
-	lda reu_frame_mid,x
+	lda reu_offset_mid
 	sta $df05
-	lda #$00
+	lda reu_offset_high
 	sta $df06
 	lda #$40                    ; bitmap destination $2b40 (y=72)
 	sta $df02
@@ -112,11 +107,22 @@ show_next_frame:
 	sta $df01
 	inc frame_index
 	lda frame_index
-	cmp #$06
-	bne frame_index_ready
+	cmp #$66                    ; 102 frames use 510 KiB of the 512 KiB REU
+	bne advance_reu_frame
 	lda #$00
 	sta frame_index
-frame_index_ready:
+	sta reu_offset_low
+	sta reu_offset_mid
+	sta reu_offset_high
+	rts
+advance_reu_frame:
+	clc
+	lda reu_offset_mid
+	adc #$14
+	sta reu_offset_mid
+	bcc reu_frame_ready
+	inc reu_offset_high
+reu_frame_ready:
 	rts
 
 wait_frame:
@@ -163,11 +169,10 @@ noise_no_xor:
 	sta $d40f
 	rts
 
-reu_frame_low:
-!byte $00,$00,$00,$00,$00,$00
-reu_frame_mid:
-!byte $00,$14,$28,$3c,$50,$64
 frame_index: !byte $00
+reu_offset_low: !byte $00
+reu_offset_mid: !byte $00
+reu_offset_high: !byte $00
 noise_phase: !byte $5d
 
 * = $2000
@@ -178,6 +183,3 @@ noise_phase: !byte $5d
 
 * = $4400
 !binary "waterfall_colors.bin"
-
-* = $4800
-!binary "waterfall_reu_frames.bin"

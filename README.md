@@ -20,11 +20,11 @@ The generator requires Pillow. Load `steven_demo.prg` on a PAL C64 or emulator. 
 
 ## Waterfall demo
 
-Generate the multicolor scene and REU animation frames, then assemble the demo:
+Generate the multicolor scene and 512 KiB REU image, then assemble the demo:
 
 ```sh
 python3 make_waterfall_assets.py
 acme -f cbm -o waterfall_demo.prg waterfall_demo.asm
 ```
 
-Load `waterfall_demo.prg` on a PAL C64 with a 512 KiB 1750-compatible REU. The six-frame waterfall, splash, and river animation is DMA-copied from the REU into bitmap RAM; SID voice 3 supplies the rushing-water sound. `waterfall_preview.png` shows the generated scene.
+Load `waterfall_demo.prg` on a PAL C64 with a 512 KiB REU, and configure the REU to load `waterfall.reu`. In VICE, enable the REU, select 512 KiB, and set its REU image to `waterfall.reu`. The image contains 102 animation frames (510 KiB); the remaining 2 KiB is unused. Each frame is DMA-copied to bitmap RAM, with SID voice 3 supplying the rushing-water sound. `waterfall_preview.png` shows a representative frame. The `.reu` image is an emulator image; a physical REU needs its RAM populated separately before running this build.

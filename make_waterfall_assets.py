@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate multicolor bitmap and six REU animation frames for the waterfall demo."""
+"""Generate multicolor bitmap and a full-size REU animation image."""
 
 from itertools import combinations
 from pathlib import Path
@@ -10,7 +10,9 @@ from PIL import Image, ImageDraw
 ROOT = Path(__file__).resolve().parent
 WIDTH, HEIGHT = 160, 200
 ANIM_Y = 72
-FRAME_COUNT = 6
+FRAME_COUNT = 102
+FRAME_BYTES = (HEIGHT - ANIM_Y) * 40
+REU_SIZE = 512 * 1024
 BACKGROUND = 14
 PALETTE = [
     (0, 0, 0), (255, 255, 255), (129, 51, 56), (117, 206, 200),
@@ -88,37 +90,34 @@ def draw_scene(frame):
         draw.line((x + 1, y, x + 4, y - 4), fill=PALETTE[5])
 
     # Falling water and impact foam are redrawn each frame for genuine motion.
-    stream_left = 70 + ((frame * 3) % 5) - 2
-    stream_right = 99 + ((frame * 2) % 5) - 2
+    stream_left = 70
+    stream_right = 99
     draw.polygon([(69, 72), (101, 72), (97, 126), (110, 142),
                   (91, 151), (68, 143), (77, 125)], fill=PALETTE[6])
     draw.polygon([(stream_left, 73), (stream_right, 73),
                   (stream_right - 3, 122), (104, 139), (91, 146),
                   (73, 140), (stream_left + 5, 122)], fill=PALETTE[3])
+    flow_step = frame // 2
     for index in range(7):
-        x = stream_left + 3 + ((index * 5 + frame * (index % 3 + 1)) % 24)
-        top = 76 + (index * 7 % 20)
-        bottom = 119 + (index * 5 % 20)
-        draw.line((x, top, x + (index % 3) - 1, bottom),
+        x = stream_left + 3 + index * 3
+        y = 74 + ((flow_step + index * 9) % 51)
+        draw.line((x, y, x, y + 6),
                   fill=PALETTE[1] if index % 3 == 0 else PALETTE[14], width=1)
-    draw.line((stream_left + 6, 76, stream_left + 5, 120), fill=PALETTE[1])
-    draw.line((stream_right - 8, 78, stream_right - 10, 122), fill=PALETTE[13])
+        draw.point((x + 1, y + 2), fill=PALETTE[13])
 
-    splash_shift = frame % 4
-    draw.arc((58 - splash_shift, 129, 110 + splash_shift, 158), 195, 345,
-             fill=PALETTE[1], width=2)
+    draw.arc((58, 129, 110, 158), 195, 345, fill=PALETTE[1], width=2)
     for x, y in ((61, 138), (69, 146), (76, 151), (101, 146),
                  (109, 139), (84 + frame % 3, 132), (73 + frame % 5, 135)):
         draw.point((x, y), fill=PALETTE[1])
         draw.point((x + 1, y - 2), fill=PALETTE[3])
 
-    # Long current bands travel downstream and wrap across the pool.
+    # Current bands drift one pixel every two frames and tile every 51 pixels.
     for index in range(5):
         y = 156 + index * 4
-        x = (frame * 13 + index * 37) % 190 - 30
+        x = (flow_step + index * 13) % 51 - 28
         length = 28 + (index % 3) * 10
         color = PALETTE[3] if index % 2 else PALETTE[14]
-        for wrap in (-190, 0, 190):
+        for wrap in (-51, 0, 51, 102, 153):
             draw.line((x + wrap, y, x + wrap + length, y), fill=color, width=1)
             draw.line((x + wrap + 7, y + 1, x + wrap + length - 5, y + 1),
                       fill=PALETTE[1] if index % 2 else PALETTE[3], width=1)
@@ -189,11 +188,14 @@ def encode(frames):
     assert len(bitmap) == 8000
     assert len(screen) == 1000
     assert len(colors) == 1000
-    assert len(animation) == FRAME_COUNT * (HEIGHT - ANIM_Y) * 40
+    assert len(animation) == FRAME_COUNT * FRAME_BYTES
+    assert len(animation) <= REU_SIZE
     (ROOT / "waterfall_bitmap.bin").write_bytes(bitmap)
     (ROOT / "waterfall_screen.bin").write_bytes(screen)
     (ROOT / "waterfall_colors.bin").write_bytes(colors)
-    (ROOT / "waterfall_reu_frames.bin").write_bytes(animation)
+    reu_image = bytearray(REU_SIZE)
+    reu_image[:len(animation)] = animation
+    (ROOT / "waterfall.reu").write_bytes(reu_image)
     preview.resize((WIDTH * 2, HEIGHT), Image.Resampling.NEAREST).save(ROOT / "waterfall_preview.png")
 
 
