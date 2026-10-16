@@ -112,14 +112,16 @@ def draw_scene(frame):
         draw.point((x, y), fill=PALETTE[1])
         draw.point((x + 1, y - 2), fill=PALETTE[3])
 
-    # Broad current lines slide downstream; short highlights break up the pool.
-    for index in range(10):
-        y = 157 + (index * 9) % 40
-        shift = (frame * (1 + index % 2) + index * 11) % 31
-        x = 5 + shift
-        length = 12 + (index * 7 % 22)
-        draw.line((x, y, min(158, x + length), y - (index % 3 == 0)),
-                  fill=PALETTE[3] if index % 2 else PALETTE[14], width=1)
+    # Long current bands travel downstream and wrap across the pool.
+    for index in range(5):
+        y = 156 + index * 4
+        x = (frame * 13 + index * 37) % 190 - 30
+        length = 28 + (index % 3) * 10
+        color = PALETTE[3] if index % 2 else PALETTE[14]
+        for wrap in (-190, 0, 190):
+            draw.line((x + wrap, y, x + wrap + length, y), fill=color, width=1)
+            draw.line((x + wrap + 7, y + 1, x + wrap + length - 5, y + 1),
+                      fill=PALETTE[1] if index % 2 else PALETTE[3], width=1)
     return image
 
 
