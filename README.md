@@ -28,3 +28,13 @@ acme -f cbm -o waterfall_demo.prg waterfall_demo.asm
 ```
 
 Load `waterfall_demo.prg` on a PAL C64 with a 512 KiB REU, and configure the REU to load `waterfall.reu`. In VICE, enable the REU, select 512 KiB, and set its REU image to `waterfall.reu`. The image contains 102 animation frames (510 KiB); the remaining 2 KiB is unused. Each frame is DMA-copied to bitmap RAM, with SID voice 3 supplying the rushing-water sound. `waterfall_preview.png` shows a representative frame. The `.reu` image is an emulator image; a physical REU needs its RAM populated separately before running this build.
+
+## Space Invaders 128
+
+Build the native C128 80-column VDC game:
+
+```sh
+acme -f cbm -o space_invaders_128.prg space_invaders_128.asm
+```
+
+Load and run `space_invaders_128.prg` on a Commodore 128 with the 80-column output connected. The game uses custom VDC character RAM for 2x2-cell sprites and the SID for laser and explosion effects. Move with A/D or the cursor keys, fire with Space, and press Space after a win or game over to restart.
