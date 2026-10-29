@@ -2,10 +2,10 @@
 ; Build: acme -f cbm -o space_invaders_128.prg space_invaders_128.asm
 ; Load and RUN from C128 BASIC 7.0; this is not a C64-mode program.
 
-* = $0801
-!byte $11,$08,$0a,$00,$de,$20,$35,$2c,$31,$3a,$9e,$32,$30,$36,$37,$00,$00,$00 ; 10 GRAPHIC 5,1:SYS 2067
+* = $1c01
+!byte $11,$1c,$0a,$00,$de,$20,$35,$2c,$31,$3a,$9e,$37,$31,$38,$37,$00,$00,$00 ; 10 GRAPHIC 5,1:SYS 7187
 
-* = $0813
+* = $1c13
 
 VDC_STATUS = $d600
 VDC_DATA   = $d601

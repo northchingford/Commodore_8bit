@@ -37,4 +37,4 @@ Build the native C128 80-column VDC game:
 acme -f cbm -o space_invaders_128.prg space_invaders_128.asm
 ```
 
-Load and run `space_invaders_128.prg` from C128 BASIC 7.0 with an 80-column monitor connected. Its BASIC 7.0 startup line selects `GRAPHIC 5` before entering the game; it is not intended to run in C64 mode. The game uses custom VDC character RAM for 2x2-cell sprites and the SID for laser and explosion effects. Move with A/D or the cursor keys, fire with Space, and press Space after a win or game over to restart.
+Load and run `space_invaders_128.prg` from C128 BASIC 7.0 with an 80-column monitor connected. It loads at the C128 BASIC program start, `$1C01`, and its BASIC 7.0 startup line selects `GRAPHIC 5` before entering the game. It is not intended to run in C64 mode. The game uses custom VDC character RAM for 2x2-cell sprites and the SID for laser and explosion effects. Move with A/D or the cursor keys, fire with Space, and press Space after a win or game over to restart.
