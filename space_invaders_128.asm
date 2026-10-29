@@ -11,9 +11,10 @@ SID        = $d400
 GETIN      = $ffe4
 
 start:
-	lda $d7ff
-	ora #$01                    ; select the VDC output
-	sta $d7ff
+	lda #$1b                    ; KERNAL screen editor: ESC-X selects 80 columns
+	jsr $ffd2
+	lda #$58
+	jsr $ffd2
 	jsr init_vdc
 	jsr init_sid
 	jsr clear_vdc
