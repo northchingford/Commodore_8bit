@@ -1,9 +1,11 @@
 ; Space Invaders for the Commodore 128 80-column VDC display.
 ; Build: acme -f cbm -o space_invaders_128.prg space_invaders_128.asm
-; Load and RUN on a C128, or load the PRG in a C128 emulator.
+; Load and RUN from C128 BASIC 7.0; this is not a C64-mode program.
 
 * = $0801
-!byte $0c,$08,$0a,$00,$9e,$32,$30,$36,$31,$00,$00,$00 ; 10 SYS 2061
+!byte $11,$08,$0a,$00,$de,$20,$35,$2c,$31,$3a,$9e,$32,$30,$36,$37,$00,$00,$00 ; 10 GRAPHIC 5,1:SYS 2067
+
+* = $0813
 
 VDC_STATUS = $d600
 VDC_DATA   = $d601
@@ -11,10 +13,6 @@ SID        = $d400
 GETIN      = $ffe4
 
 start:
-	lda #$1b                    ; KERNAL screen editor: ESC-X selects 80 columns
-	jsr $ffd2
-	lda #$58
-	jsr $ffd2
 	jsr init_vdc
 	jsr init_sid
 	jsr clear_vdc
@@ -414,8 +412,8 @@ update_score:
 	rts
 
 update_lives:
-	ldx #$47
-	ldy #$01
+	ldx #$07
+	ldy #$03
 	lda #$01
 	sta cell_color
 	lda lives
@@ -533,6 +531,13 @@ write_text:
 write_text_loop:
 	lda ($fb),y
 	beq write_text_done
+	cmp #$41                    ; Convert ASCII uppercase to VDC screen codes.
+	bcc write_text_store
+	cmp #$5b
+	bcs write_text_store
+	sec
+	sbc #$40
+write_text_store:
 	jsr vdc_store
 	iny
 	bne write_text_loop
@@ -804,18 +809,30 @@ load_glyph_loop:
 
 init_vdc:
 	lda #$00
-	ldx #$12
+	ldx #$0c                    ; Screen RAM base: $0000.
 	jsr vdc_write_reg
 	lda #$00
-	ldx #$13
+	ldx #$0d
 	jsr vdc_write_reg
-	lda #$08
+	lda #$00
+	ldx #$0e                    ; Hide cursor at the first screen cell.
+	jsr vdc_write_reg
+	lda #$00
+	ldx #$0f
+	jsr vdc_write_reg
+	lda #$08                    ; Attribute RAM at $0800.
 	ldx #$14
 	jsr vdc_write_reg
 	lda #$00
 	ldx #$15
 	jsr vdc_write_reg
-	lda #$84                    ; external character RAM at $2000
+	lda #$40                    ; Text mode with per-character attributes.
+	ldx #$19
+	jsr vdc_write_reg
+	lda #$f0                    ; Black background, white default foreground.
+	ldx #$1a
+	jsr vdc_write_reg
+	lda #$20                    ; 16 KB VDC: character generator starts at $2000.
 	ldx #$1c
 	jsr vdc_write_reg
 	rts
